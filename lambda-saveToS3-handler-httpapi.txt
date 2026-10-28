@@ -1,0 +1,28 @@
+def lambda_handler(event, context):
+    # TODO implement
+    
+    msg = "INVALID REQUEST"
+    
+    if event['requestContext']['http']['method'] == 'POST':
+        
+        # Extract the base64-encoded image and filename from the request body
+        request_body = json.loads(event['body'])
+        image_base64 = request_body.get('image', '')
+        
+        # Decode the base64-encoded image
+        image_binary = base64.b64decode(image_base64)
+        
+        #save image to S3
+        imagefilename = saveToS3(image_binary)
+        
+        #msg = 'Hello from Lambda!'
+        msg = predictImage('uploads/beautiful-smooth-haired-red-cat-lies-on-the-sofa.jpg')
+    
+    return {
+        'statusCode': 200,
+        'headers': {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+        },
+        'body': json.dumps(msg)
+    }

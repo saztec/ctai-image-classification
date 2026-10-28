@@ -1,0 +1,30 @@
+from botocore.exceptions import ClientError
+import base64
+from io import BytesIO
+from datetime import datetime
+
+s3 = boto3.client('s3')
+
+def saveToS3(image_binary):
+    
+    # Get the current timestamp
+    timestamp = datetime.utcnow().strftime("%Y%m%d%H%M%S%f")
+    
+    # Generate a filename with the timestamp
+    filename = f'uploads/{timestamp}.jpg'
+    
+    print("filename: ", filename)
+    
+    try:
+        # need to save the image as image/jpeg content type
+        s3.put_object(Bucket=bucket_name, Key=filename, Body=image_binary, ContentType='image/jpeg')
+        
+        # Log success message
+        print(f"Image saved to S3: s3://{bucket_name}/{filename}")
+        
+        return filename
+    except ClientError as e:
+        # Log the error
+        print("Error:", str(e))
+        
+        return None

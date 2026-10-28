@@ -1,0 +1,23 @@
+import boto3
+
+bucket_name = "REPLACE WITH YOUR WEBSITE'S BUCKET NAME"
+
+def predictImage(photo):
+    rekognition = boto3.client('rekognition')
+    
+    model = "REPLACE WITH YOUR MODEL's ARN"
+    min_confidence = 60
+
+    #Call DetectCustomLabels
+    response = rekognition.detect_custom_labels(Image={'S3Object': {'Bucket': bucket_name, 'Name': photo}},
+        MinConfidence=min_confidence,
+        ProjectVersionArn=model)
+    
+    print(response['CustomLabels'])
+    
+    result = json.dumps(response['CustomLabels'][0])
+	
+	#print to the log for debugging purposes
+    print(response['CustomLabels'][0]["Name"])
+    
+    return response['CustomLabels'][0]["Name"]

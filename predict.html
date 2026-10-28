@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.0/css/bulma.min.css" integrity="sha256-8nf+BDtOgthqqdcfZXfDwth8LL6k314ILswPBDzXMp4=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <title>CTAI Lab (AWS Rekognition) - Image Classification</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+		
+		h2 {
+			font-size: 25px;
+		}
+		
+		h3 {
+			padding-top: 20px;
+			font-size: 25px;
+		}
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        form {
+            margin-top: 20px;
+        }
+
+        input, button {
+            margin-bottom: 10px;
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+	
+	<h2>Image Classification</h2>
+	<p>This is a demo for image classification. Users will upload an image here, and the predicted result from Rekognition will be displayed in the alert box.</p>
+	
+	<h3>Upload a file here</h3>
+	
+	<form id="imageForm" enctype="multipart/form-data">
+		<label for="imageInput">Choose an image:</label>
+		<input type="file" id="imageInput" name="image" accept="image/*" required>
+		<br>
+		<button type="button" onclick="uploadImage()">Submit</button>
+	</form>
+    <script>
+	
+		function uploadImage() {
+			const imageInput = document.getElementById('imageInput');
+			
+			// Check if a file is selected
+			if (!imageInput.files || imageInput.files.length === 0) {
+				alert("Please choose an image file.");
+				return;
+			}
+
+			const selectedFile = imageInput.files[0];
+
+			// Read the selected file as a Data URL
+			const reader = new FileReader();
+			reader.onload = function (event) {
+				const base64EncodedImage = event.target.result.split(',')[1];
+
+				// Make an HTTP POST request to your Lambda function
+				fetch('https://twef7vo951.execute-api.us-east-1.amazonaws.com/test/predict', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						image: base64EncodedImage
+					}),
+				})
+				.then(response => response.json())
+				.then(data => {
+					// Handle the response from Lambda
+					console.log('Lambda Response:', data);
+					alert('Image uploaded successfully!');
+				})
+				.catch(error => {
+					// Handle errors
+					console.error('Error:', error);
+					alert('Error uploading image.');
+				});
+			};
+
+			// Read the file as a Data URL
+			reader.readAsDataURL(selectedFile);
+		}
+	
+	</script>
+</body>			
+</html>
